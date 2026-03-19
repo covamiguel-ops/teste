@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal AI — Adoção de Inteligência Artificial</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">◆</span>
+                    <span class="logo-text">Portal AI</span>
+                </div>
+                <span class="logo-subtitle">Adoção de Inteligência Artificial</span>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" onclick="openModal()">
+                    <span class="btn-icon">+</span> Novo Pedido
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard -->
+        <section class="dashboard" id="dashboard">
+            <div class="stat-card" onclick="filterByStatus(null)">
+                <div class="stat-number" id="stat-total">0</div>
+                <div class="stat-label">Total</div>
+                <div class="stat-bar stat-bar-total"></div>
+            </div>
+            <div class="stat-card" onclick="filterByStatus('Por começar')">
+                <div class="stat-number" id="stat-todo">0</div>
+                <div class="stat-label">Por começar</div>
+                <div class="stat-bar stat-bar-todo"></div>
+            </div>
+            <div class="stat-card" onclick="filterByStatus('Em curso')">
+                <div class="stat-number" id="stat-progress">0</div>
+                <div class="stat-label">Em curso</div>
+                <div class="stat-bar stat-bar-progress"></div>
+            </div>
+            <div class="stat-card" onclick="filterByStatus('Em espera')">
+                <div class="stat-number" id="stat-waiting">0</div>
+                <div class="stat-label">Em espera</div>
+                <div class="stat-bar stat-bar-waiting"></div>
+            </div>
+            <div class="stat-card" onclick="filterByStatus('Finalizado')">
+                <div class="stat-number" id="stat-done">0</div>
+                <div class="stat-label">Finalizados</div>
+                <div class="stat-bar stat-bar-done"></div>
+            </div>
+            <div class="stat-card stat-card-alert" onclick="filterOverdue()">
+                <div class="stat-number" id="stat-overdue">0</div>
+                <div class="stat-label">Atrasados</div>
+                <div class="stat-bar stat-bar-overdue"></div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="filters">
+            <div class="filters-row">
+                <div class="search-box">
+                    <span class="search-icon">⌕</span>
+                    <input type="text" id="searchInput" placeholder="Pesquisar pedidos..." oninput="renderList()">
+                </div>
+                <select id="filterStatus" onchange="renderList()">
+                    <option value="">Todos os estados</option>
+                    <option value="Por começar">Por começar</option>
+                    <option value="Em curso">Em curso</option>
+                    <option value="Em espera">Em espera</option>
+                    <option value="Finalizado">Finalizado</option>
+                </select>
+                <select id="filterArea" onchange="renderList()">
+                    <option value="">Todas as áreas</option>
+                </select>
+                <select id="filterPriority" onchange="renderList()">
+                    <option value="">Todas as prioridades</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Média">Média</option>
+                    <option value="Baixa">Baixa</option>
+                </select>
+                <select id="filterTeam" onchange="renderList()">
+                    <option value="">Todas as equipas</option>
+                </select>
+                <button class="btn btn-ghost" onclick="clearFilters()" title="Limpar filtros">✕ Limpar</button>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" id="viewCards" onclick="setView('cards')" title="Vista em cards">▦</button>
+                <button class="view-btn" id="viewTable" onclick="setView('table')" title="Vista em tabela">☰</button>
+            </div>
+        </section>
+
+        <!-- Request List -->
+        <section class="list-container">
+            <div id="requestList" class="cards-view"></div>
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <div class="empty-icon">◇</div>
+                <p>Nenhum pedido encontrado</p>
+                <button class="btn btn-primary" onclick="openModal()">Criar primeiro pedido</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal: Create/Edit Request -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Pedido</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <form id="requestForm" onsubmit="saveRequest(event)">
+                <input type="hidden" id="requestId">
+                <div class="form-grid">
+                    <div class="form-group form-full">
+                        <label for="title">Título *</label>
+                        <input type="text" id="title" required placeholder="Ex: Chatbot para suporte ao cliente">
+                    </div>
+                    <div class="form-group">
+                        <label for="area">Área / Setor *</label>
+                        <input type="text" id="area" required placeholder="Ex: Marketing" list="areasList">
+                        <datalist id="areasList"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Estado</label>
+                        <select id="status">
+                            <option value="Por começar">Por começar</option>
+                            <option value="Em curso">Em curso</option>
+                            <option value="Em espera">Em espera</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Prioridade</label>
+                        <select id="priority">
+                            <option value="Média">Média</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Baixa">Baixa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline">Data Limite</label>
+                        <input type="date" id="deadline">
+                    </div>
+                    <div class="form-group">
+                        <label for="responsible">Responsável</label>
+                        <input type="text" id="responsible" placeholder="Ex: João Silva">
+                    </div>
+                    <div class="form-group">
+                        <label for="team">Equipa</label>
+                        <input type="text" id="team" placeholder="Ex: Data & AI" list="teamsList">
+                        <datalist id="teamsList"></datalist>
+                    </div>
+                    <div class="form-group form-full">
+                        <label for="description">Descrição curta</label>
+                        <textarea id="description" rows="2" placeholder="Breve descrição do pedido..."></textarea>
+                    </div>
+                    <div class="form-group form-full">
+                        <label for="nextStep">Próximo passo</label>
+                        <input type="text" id="nextStep" placeholder="Ex: Agendar reunião de kick-off">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: View Detail -->
+    <div class="modal-overlay" id="detailOverlay" onclick="closeDetailOutside(event)">
+        <div class="modal modal-detail">
+            <div class="modal-header">
+                <h2 id="detailTitle">Detalhe do Pedido</h2>
+                <button class="modal-close" onclick="closeDetail()">✕</button>
+            </div>
+            <div id="detailContent" class="detail-content"></div>
+            <div class="form-actions">
+                <button class="btn btn-ghost" onclick="closeDetail()">Fechar</button>
+                <button class="btn btn-danger" id="detailDeleteBtn" onclick="deleteFromDetail()">Eliminar</button>
+                <button class="btn btn-primary" id="detailEditBtn" onclick="editFromDetail()">Editar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
