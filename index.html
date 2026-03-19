@@ -3,112 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal AI — Adoção de Inteligência Artificial</title>
+    <title>AI Adoption Portal</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <div class="logo">
-                    <span class="logo-icon">◆</span>
-                    <span class="logo-text">Portal AI</span>
-                </div>
-                <span class="logo-subtitle">Adoção de Inteligência Artificial</span>
+    <!-- Top Navigation -->
+    <nav class="topnav">
+        <div class="topnav-left">
+            <span class="topnav-brand">AI Adoption Portal</span>
+            <div class="topnav-links">
+                <a href="#" class="topnav-link active" data-page="home">Home</a>
+                <a href="#" class="topnav-link" data-page="initiatives">Initiatives</a>
+                <a href="#" class="topnav-link" data-page="analytics">Analytics</a>
             </div>
-            <div class="header-right">
-                <button class="btn btn-primary" onclick="openModal()">
-                    <span class="btn-icon">+</span> Novo Pedido
+        </div>
+        <div class="topnav-right">
+            <div class="topnav-search">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="globalSearch" placeholder="Search insights..." oninput="renderUpdates()">
+            </div>
+            <button class="topnav-icon-btn" title="Notificações" onclick="toggleNotifications()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="notification-dot" id="notifDot"></span>
+            </button>
+            <button class="topnav-icon-btn" title="Definições">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </button>
+            <div class="topnav-avatar" onclick="openModal()">
+                <span>+</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <!-- Left Sidebar: Quick Filters -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                </div>
+                <div>
+                    <div class="sidebar-title">Quick Filters</div>
+                    <div class="sidebar-subtitle">Refine View</div>
+                </div>
+            </div>
+            <div class="sidebar-filters">
+                <button class="sidebar-filter-btn active" data-filter="status" onclick="toggleSidebarFilter(this, 'status')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="9" y2="18"/></svg>
+                    Status
                 </button>
-            </div>
-        </header>
-
-        <!-- Dashboard -->
-        <section class="dashboard" id="dashboard">
-            <div class="stat-card" onclick="filterByStatus(null)">
-                <div class="stat-number" id="stat-total">0</div>
-                <div class="stat-label">Total</div>
-                <div class="stat-bar stat-bar-total"></div>
-            </div>
-            <div class="stat-card" onclick="filterByStatus('Por começar')">
-                <div class="stat-number" id="stat-todo">0</div>
-                <div class="stat-label">Por começar</div>
-                <div class="stat-bar stat-bar-todo"></div>
-            </div>
-            <div class="stat-card" onclick="filterByStatus('Em curso')">
-                <div class="stat-number" id="stat-progress">0</div>
-                <div class="stat-label">Em curso</div>
-                <div class="stat-bar stat-bar-progress"></div>
-            </div>
-            <div class="stat-card" onclick="filterByStatus('Em espera')">
-                <div class="stat-number" id="stat-waiting">0</div>
-                <div class="stat-label">Em espera</div>
-                <div class="stat-bar stat-bar-waiting"></div>
-            </div>
-            <div class="stat-card" onclick="filterByStatus('Finalizado')">
-                <div class="stat-number" id="stat-done">0</div>
-                <div class="stat-label">Finalizados</div>
-                <div class="stat-bar stat-bar-done"></div>
-            </div>
-            <div class="stat-card stat-card-alert" onclick="filterOverdue()">
-                <div class="stat-number" id="stat-overdue">0</div>
-                <div class="stat-label">Atrasados</div>
-                <div class="stat-bar stat-bar-overdue"></div>
-            </div>
-        </section>
-
-        <!-- Filters -->
-        <section class="filters">
-            <div class="filters-row">
-                <div class="search-box">
-                    <span class="search-icon">⌕</span>
-                    <input type="text" id="searchInput" placeholder="Pesquisar pedidos..." oninput="renderList()">
+                <div class="sidebar-filter-options" id="filterStatusOptions">
+                    <label class="filter-option"><input type="checkbox" value="Por começar" onchange="applyFilters()"> Por começar</label>
+                    <label class="filter-option"><input type="checkbox" value="Em curso" onchange="applyFilters()"> Em curso</label>
+                    <label class="filter-option"><input type="checkbox" value="Em espera" onchange="applyFilters()"> Em espera</label>
+                    <label class="filter-option"><input type="checkbox" value="Finalizado" onchange="applyFilters()"> Finalizado</label>
                 </div>
-                <select id="filterStatus" onchange="renderList()">
-                    <option value="">Todos os estados</option>
-                    <option value="Por começar">Por começar</option>
-                    <option value="Em curso">Em curso</option>
-                    <option value="Em espera">Em espera</option>
-                    <option value="Finalizado">Finalizado</option>
-                </select>
-                <select id="filterArea" onchange="renderList()">
-                    <option value="">Todas as áreas</option>
-                </select>
-                <select id="filterPriority" onchange="renderList()">
-                    <option value="">Todas as prioridades</option>
-                    <option value="Alta">Alta</option>
-                    <option value="Média">Média</option>
-                    <option value="Baixa">Baixa</option>
-                </select>
-                <select id="filterTeam" onchange="renderList()">
-                    <option value="">Todas as equipas</option>
-                </select>
-                <button class="btn btn-ghost" onclick="clearFilters()" title="Limpar filtros">✕ Limpar</button>
-            </div>
-            <div class="view-toggle">
-                <button class="view-btn active" id="viewCards" onclick="setView('cards')" title="Vista em cards">▦</button>
-                <button class="view-btn" id="viewTable" onclick="setView('table')" title="Vista em tabela">☰</button>
-            </div>
-        </section>
 
-        <!-- Request List -->
-        <section class="list-container">
-            <div id="requestList" class="cards-view"></div>
-            <div id="emptyState" class="empty-state" style="display:none;">
-                <div class="empty-icon">◇</div>
-                <p>Nenhum pedido encontrado</p>
-                <button class="btn btn-primary" onclick="openModal()">Criar primeiro pedido</button>
+                <button class="sidebar-filter-btn" data-filter="area" onclick="toggleSidebarFilter(this, 'area')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Area/Sector
+                </button>
+                <div class="sidebar-filter-options hidden" id="filterAreaOptions"></div>
+
+                <button class="sidebar-filter-btn" data-filter="priority" onclick="toggleSidebarFilter(this, 'priority')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Priority
+                </button>
+                <div class="sidebar-filter-options hidden" id="filterPriorityOptions">
+                    <label class="filter-option"><input type="checkbox" value="Alta" onchange="applyFilters()"> Alta</label>
+                    <label class="filter-option"><input type="checkbox" value="Média" onchange="applyFilters()"> Média</label>
+                    <label class="filter-option"><input type="checkbox" value="Baixa" onchange="applyFilters()"> Baixa</label>
+                </div>
             </div>
-        </section>
+            <button class="apply-filters-btn" onclick="applyFilters()">Apply Filters</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page: Home -->
+            <div id="pageHome" class="page active">
+                <!-- Executive Overview Header -->
+                <div class="exec-header">
+                    <span class="exec-label">EXECUTIVE OVERVIEW</span>
+                    <h1 class="exec-title">Dashboard de Adoção AI</h1>
+                    <p class="exec-subtitle">Consulte em tempo real o progresso das iniciativas de inteligência artificial em todos os departamentos.</p>
+                </div>
+
+                <!-- Stat Cards Row -->
+                <div class="stats-row">
+                    <div class="stat-card" onclick="quickFilter(null)">
+                        <div class="stat-card-top">
+                            <div class="stat-icon stat-icon-total">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                            </div>
+                            <span class="stat-period" id="statPeriod"></span>
+                        </div>
+                        <div class="stat-number" id="stat-total">0</div>
+                        <div class="stat-label">Total de Pedidos</div>
+                        <div class="stat-bar"><div class="stat-bar-fill stat-bar-total"></div></div>
+                    </div>
+
+                    <div class="stat-card" onclick="quickFilter('Em curso')">
+                        <div class="stat-card-top">
+                            <div class="stat-icon stat-icon-active">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <span class="stat-badge stat-badge-active">ACTIVE</span>
+                        </div>
+                        <div class="stat-number" id="stat-progress">0</div>
+                        <div class="stat-label">Em Curso</div>
+                        <div class="stat-bar"><div class="stat-bar-fill stat-bar-active"></div></div>
+                    </div>
+
+                    <div class="stat-card" onclick="quickFilter('Finalizado')">
+                        <div class="stat-card-top">
+                            <div class="stat-icon stat-icon-done">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <span class="stat-trend" id="statTrend"></span>
+                        </div>
+                        <div class="stat-number" id="stat-done">0</div>
+                        <div class="stat-label">Finalizados</div>
+                        <div class="stat-bar"><div class="stat-bar-fill stat-bar-done"></div></div>
+                    </div>
+
+                    <div class="stat-card" onclick="quickFilter('overdue')">
+                        <div class="stat-card-top">
+                            <div class="stat-icon stat-icon-overdue">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <span class="stat-badge stat-badge-overdue">ATTENTION REQUIRED</span>
+                        </div>
+                        <div class="stat-number" id="stat-overdue">0</div>
+                        <div class="stat-label">Atrasados</div>
+                        <div class="stat-bar"><div class="stat-bar-fill stat-bar-overdue"></div></div>
+                    </div>
+                </div>
+
+                <!-- Bottom Section: Updates + Side Panel -->
+                <div class="bottom-section">
+                    <!-- Left: Últimas Atualizações -->
+                    <div class="updates-panel">
+                        <div class="updates-header">
+                            <div>
+                                <h2 class="updates-title">Últimas Atualizações</h2>
+                                <p class="updates-subtitle">Monitoramento de atividades críticas recentes</p>
+                            </div>
+                            <button class="link-btn" onclick="showPage('initiatives')">VER TUDO</button>
+                        </div>
+                        <div class="updates-list" id="updatesList">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Side Panel -->
+                    <div class="side-panel">
+                        <!-- Iniciativas por Área -->
+                        <div class="area-card">
+                            <h3 class="area-card-title">Iniciativas por Área</h3>
+                            <p class="area-card-subtitle">Distribuição estratégica anual</p>
+                            <div class="area-chart" id="areaChart">
+                                <!-- Rendered by JS -->
+                            </div>
+                            <div class="area-tabs" id="areaTabs">
+                                <!-- Rendered by JS -->
+                            </div>
+                            <div class="capacity-row">
+                                <span class="capacity-label">Capacidade de Entrega</span>
+                                <span class="capacity-value" id="capacityValue">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Ações Recomendadas -->
+                        <div class="actions-card">
+                            <h3 class="actions-title">Ações Recomendadas</h3>
+                            <div class="actions-list" id="actionsList">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Initiatives (full list) -->
+            <div id="pageInitiatives" class="page">
+                <div class="exec-header">
+                    <span class="exec-label">TODAS AS INICIATIVAS</span>
+                    <h1 class="exec-title">Pedidos e Iniciativas</h1>
+                    <p class="exec-subtitle">Lista completa de todos os pedidos de adoção de AI na organização.</p>
+                </div>
+                <div class="initiatives-toolbar">
+                    <div class="initiatives-search">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        <input type="text" id="initiativesSearch" placeholder="Pesquisar pedidos..." oninput="renderInitiatives()">
+                    </div>
+                    <button class="btn-new" onclick="openModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Novo Pedido
+                    </button>
+                </div>
+                <div id="initiativesList" class="initiatives-grid"></div>
+                <div id="emptyState" class="empty-state" style="display:none;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+                    <p>Nenhum pedido encontrado</p>
+                    <button class="btn-new" onclick="openModal()">Criar primeiro pedido</button>
+                </div>
+            </div>
+
+            <!-- Page: Analytics -->
+            <div id="pageAnalytics" class="page">
+                <div class="exec-header">
+                    <span class="exec-label">ANALYTICS</span>
+                    <h1 class="exec-title">Análise e Métricas</h1>
+                    <p class="exec-subtitle">Visão analítica sobre a adoção de AI na organização.</p>
+                </div>
+                <div class="analytics-grid" id="analyticsContent">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </main>
     </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <span class="footer-sync" id="footerSync">LAST SYNCHRONIZED: --</span>
+        <div class="footer-links">
+            <a href="#">SUPPORT</a>
+            <a href="#">DOCUMENTATION</a>
+            <a href="#">PRIVACY</a>
+        </div>
+    </footer>
 
     <!-- Modal: Create/Edit Request -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modalTitle">Novo Pedido</h2>
-                <button class="modal-close" onclick="closeModal()">✕</button>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <form id="requestForm" onsubmit="saveRequest(event)">
                 <input type="hidden" id="requestId">
@@ -162,8 +295,8 @@
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-new">Guardar</button>
                 </div>
             </form>
         </div>
@@ -174,13 +307,13 @@
         <div class="modal modal-detail">
             <div class="modal-header">
                 <h2 id="detailTitle">Detalhe do Pedido</h2>
-                <button class="modal-close" onclick="closeDetail()">✕</button>
+                <button class="modal-close" onclick="closeDetail()">&times;</button>
             </div>
             <div id="detailContent" class="detail-content"></div>
             <div class="form-actions">
-                <button class="btn btn-ghost" onclick="closeDetail()">Fechar</button>
-                <button class="btn btn-danger" id="detailDeleteBtn" onclick="deleteFromDetail()">Eliminar</button>
-                <button class="btn btn-primary" id="detailEditBtn" onclick="editFromDetail()">Editar</button>
+                <button class="btn-cancel" onclick="closeDetail()">Fechar</button>
+                <button class="btn-danger" id="detailDeleteBtn" onclick="deleteFromDetail()">Eliminar</button>
+                <button class="btn-new" id="detailEditBtn" onclick="editFromDetail()">Editar</button>
             </div>
         </div>
     </div>
